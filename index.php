@@ -4,6 +4,8 @@
     define("DB_USERNAME", "tiendaonline");
     define("DB_PASSWORD", "J0Vh_]J210(AO)Gw");
     define("DB_DATABASE_NAME", "tiendaonline");
+    
+    define("PROJECT_ROOT_PATH", __DIR__ . "/../");
 
     class Database
     {
@@ -140,7 +142,7 @@
                         $intLimit = $arrQueryStringParams['limit'];
                     }
      
-                    $arrUsers = $userModel->getUsers($intLimit);
+                    $arrUsers = $userModel->getProductos($intLimit);
                     $responseData = json_encode($arrUsers);
                 } catch (Error $e) {
                     $strErrorDesc = $e->getMessage().'Something went wrong! Please contact support.';
