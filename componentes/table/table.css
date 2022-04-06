@@ -1,0 +1,49 @@
+.scrollable-table > table {
+  margin-bottom: 0px !important;
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+}
+
+.scrollable-table > thead {
+  flex: 0 0 auto;
+}
+
+.scrollable-table > tbody {
+  flex: 1 1 auto;
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.scrollable-table > tbody > tr, .scrollable-table > thead > tr {
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+}
+
+.scrollbar-spacer {
+  width: 17px;
+}
+
+div.td-centered {
+  display: flex;
+  justify-content: center;
+}
+
+td.td-centered {
+  text-align: center !important;
+}
+
+th {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table {
+  width: 100%;
+  background-color: #FFFFFF;
+  margin-bottom: 0 !important;
+  border-width: 1px !important;
+  border: solid #dee2e6;
+}

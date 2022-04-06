@@ -1,0 +1,34 @@
+.sidebar-title {
+  margin-bottom: 10px;
+}
+
+.sidebar-title-text {
+  padding-top: 1px;
+  margin-bottom: 0; 
+  margin-left: 10px; 
+}
+
+.sidebar-pills {
+  width: 280px;
+  padding: 16px;
+}
+
+.sidebar-pill {
+  text-align: left;
+}
+
+.sidebar-pill-icon {
+  width: 16;
+  height: 16;
+  color: white;
+  padding-right: 10px;
+}
+
+.sidebar-divider {
+  width: 1.5rem;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, .1);
+  border: solid rgba(0, 0, 0, .15);
+  border-width: 1px 0;
+  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}

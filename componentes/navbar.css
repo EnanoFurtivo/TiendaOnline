@@ -1,0 +1,30 @@
+.navbar-title-icon {
+	font-size: 32px;
+	color: white;
+	margin-left: 10px;
+	margin-right: 15px;
+	padding-bottom: 2px;
+}
+
+.navbar-title-text {
+	margin-bottom: 0; 
+	padding-right: 10px;
+	padding-bottom: 3px;
+}
+
+.navbar-divider {
+	height: 1.5rem;
+	background-color: rgba(0, 0, 0, .1);
+	border: solid rgba(0, 0, 0, .15);
+	border-width: 1px 0;
+	box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.nav-link {
+	color: #d3d4d4;
+}
+
+.nav-pills .nav-link.active {
+	color: #FFFFFF;
+	background-color: rgba(13, 110, 253, .75);
+}

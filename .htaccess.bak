@@ -1,0 +1,5 @@
+#REGLA REWRITE PARA REDIRECCIONAR API REQUEST TIENDA ONLINE [SEMANTIC URL]
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^TiendaOnline/api/(.*)$ TiendaOnline/index.php/$1
