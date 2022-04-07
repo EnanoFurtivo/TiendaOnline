@@ -40,31 +40,20 @@
 
             echo $mensaje;
             http_response_code($responseCode);
-            die();
+            exit();
         }
+
+        /**
+         * Valida el metodo de request.
+         *
+         * @param string $desiredMethod Metodo de request esperado
+         */
+        protected function checkRequestMethod($desiredMethod)
+        {
+            if (strtoupper($_SERVER["REQUEST_METHOD"]) != $desiredMethod) 
+                $this->enviarRespuesta('Metodo '.$_SERVER["REQUEST_METHOD"].' no admitido', 422);
+        }
+
     }
-
-    if (!isset($uri[$uriOffset+2]) || $uri[$uriOffset+2] == "")
-        ApiController::enviarRespuesta("Se esperaba clase y metodo para acceder a la api.", 400);
-
-    $endPoint = strtolower($uri[$uriOffset+1]);
-    $apiFileName = $endPoint.".php";
-    $apiFilePath = PROJECT_ROOT_PATH."/rest-api/".$endPoint.".php";
-    $modelControllerClass = $uri[$uriOffset+1].'Controller';
-    
-    //Incluir el archivo de la clase controladora//
-    if (!file_exists($apiFilePath))
-        ApiController::enviarRespuesta("No existe el archivo asociado al end point requerido.", 404);
-    
-    require($apiFilePath);
-
-    //ERORR INTERNO DE PROGRAMACION, NO DEBERIA OCURRIR//
-    if (!class_exists($modelControllerClass))
-        ApiController::enviarRespuesta("No existe la clase '".$modelControllerClass."' correspondiente al point requerido.", 501);
-    
-    //Crear instancia de la clase controladora que corresponda y ejecutar el metodo requerido//
-    $strMethodName = $uri[$uriOffset+2];
-    $objController = new $modelControllerClass();
-    $objController->{$strMethodName}();
 
 ?>

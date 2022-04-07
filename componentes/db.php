@@ -6,83 +6,139 @@
         private static $sqlServername = "localhost";
         private static $sqlUsername = "tiendaonline";
         private static $sqlPassword = "J0Vh_]J210(AO)Gw";
-        private static $dbPrefix = "to_";
+        private static $dbName = "tienda_online";
+        private static $sqlConnection = null;
 
-        //Array de conexiones//
-        private $sqlConnections = array();
-
-        //Obtener una nueva conexion si no existe//
-        private function getConnection($dbName)
+        /**
+         * Obtener conexion con base de datos.
+         * 
+         * @return mysqli
+         */
+        private static function getConnection()
         {
-            $dbName = Database::$dbPrefix.$dbName;
-
             //Si ya existe la conexion devolver//
-            if (isset($this->sqlConnections[$dbName]) && $this->sqlConnections[$dbName] != null)
-                return $this->sqlConnections[$dbName];
+            if (isset(Database::$sqlConnection) && Database::$sqlConnection != null)
+                return Database::$sqlConnection;
 
             try 
             { 
                 $sqlConnection = new mysqli(Database::$sqlServername, 
                                              Database::$sqlUsername, 
                                              Database::$sqlPassword, 
-                                             $dbName);
+                                             Database::$dbName);
 
                 mysqli_set_charset($sqlConnection, "utf8");
 
                 if ($sqlConnection->connect_error) 
                 {
-                    echo "Conexion para la base ".$dbName." fallo: ".$sqlConnection->connect_error;
+                    echo "Conexion para la base ".Database::$dbName." fallo: ".$sqlConnection->connect_error;
                     return null;
                 }
                 else
                 {
-                    $this->sqlConnections[$dbName] = $sqlConnection;
-                    return $this->sqlConnections[$dbName];
+                    Database::$sqlConnection = $sqlConnection;
+                    return Database::$sqlConnection;
                 }
             } 
             catch (Exception $e) 
             {
-                echo 'SQL error de conexion para la base '.$dbName;
+                echo 'Error de conexion para la base '.Database::$dbName;
                 return null;
             }
         }
 
-        private function executeStatement($dbName = "", $query = "" , $types, $params = [])
+        /**
+         * Ejecutar query contra base de datos.
+         * 
+         * @param string $query
+         * @param array $params Opcional
+         * @param string $dataTypes Opcional
+         * @return mysqli_stmt
+         */
+        private static function executeStatement($query = "", $params = [], $dataTypes = "")
         {
-            try {
-                $conn = $this->getConnection($dbName);
+            try 
+            {
+                $conn = Database::getConnection(Database::$dbName);
                 $stmt = $conn->prepare($query);
     
-                if($stmt === false) {
-                    throw New Exception("Unable to do prepared statement: " . $query);
-                }
-    
-                if( $params && $types ) {
-                    $stmt->bind_param($types, ...$params);
+                if ($stmt === false)
+                    throw New Exception("No se puede preparar el statement: " . $query);
+                
+                if ($params) 
+                {
+                    $hayDataTypes = ($dataTypes != "") ? true : false;
+                    foreach ($params as $key => $value)
+                    {
+                        if (!$hayDataTypes)
+                            $dataTypes .= "s";
+
+                        if (strpos($dataTypes, $key) == "s")
+                            $params[$key] = $conn->real_escape_string($params[$key]);
+                    }
+
+                    $stmt->bind_param($dataTypes, ...$params);
                 }
     
                 $stmt->execute();
     
                 return $stmt;
-            } catch(Exception $e) {
-                throw New Exception( $e->getMessage() );
+            } 
+            catch(Exception $e) 
+            {
+                throw New Exception($e->getMessage());
             }   
         }
 
-        protected function select($dbName = "", $query = "", $types, $params = [])
+        /**
+         * Ejecutar select contra base de datos.
+         * 
+         * @param string $query
+         * @param array $params Opcional
+         * @param string $dataTypes Opcional
+         * @return array
+         */
+        protected static function select($query = "", $params = [], $dataTypes = "")
         {
-            try {
-                $stmt = $this->executeStatement($dbName, $query, $types, $params);
+            try 
+            {
+                $stmt = Database::executeStatement($query, $params, $dataTypes);
                 $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);               
                 $stmt->close();
-    
                 return $result;
-            } catch(Exception $e) {
-                throw New Exception( $e->getMessage() );
+            } 
+            catch(Exception $e) 
+            {
+                throw New Exception($e->getMessage());
             }
+
             return false;
         }
     
+        /**
+         * Ejecutar insert contra base de datos.
+         * 
+         * @param string $query
+         * @param array $params Opcional
+         * @param string $dataTypes Opcional
+         * @return bool
+         */
+        protected static function insert($query = "", $params = [], $dataTypes = "")
+        {
+            try 
+            {
+                $stmt = Database::executeStatement($query, $params, $dataTypes);
+                $result = $stmt->get_result();               
+                $stmt->close();
+                return $result;
+            } 
+            catch(Exception $e) 
+            {
+                throw New Exception($e->getMessage());
+            }
+
+            return false;
+        }
     }
 
 ?>
