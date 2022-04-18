@@ -115,6 +115,8 @@
             return false;
         }
     
+        //DEJAR EL INSERT COMO PROTECTED CAMBIAN NO OLVIDAR//
+
         /**
          * Ejecutar insert contra base de datos.
          * 
@@ -123,7 +125,7 @@
          * @param string $dataTypes Opcional
          * @return bool
          */
-        protected static function insert($query = "", $params = [], $dataTypes = "")
+        public static function insert($query = "", $params = [], $dataTypes = "")
         {
             try 
             {

@@ -39,15 +39,13 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
          * @return bool 
          */
         public static function validarCredenciales($username, $password) {
-            $encryption = new Encryption();
             $resultSet = Database::select("SELECT PASSWORD FROM usuario WHERE USERNAME = ?", [$username]);
 
             if(empty($resultSet))
                 return false;
+`            $storedPassword = $resultSet[0]["PASSWORD"];
 
-            $storedPassword = $resultSet[0]["PASSWORD"];
-
-            if ($encryption->decrypt($storedPassword) == $password)
+            if (Encryption::decrypt($storedPassword) == $password)
                 return true;
             else
                 return false;

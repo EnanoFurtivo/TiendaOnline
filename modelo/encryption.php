@@ -2,21 +2,24 @@
 
     class Encryption extends Database
     {
-        public function getPublicKey()
+        public static function getPublicKey()
         {
-            return $this->select("SELECT PUBLIC_KEY FROM encryption")["PUBLIC_KEY"];
+            $resultSet = Database::select("SELECT PUBLIC_KEY FROM encryption");
+            $b64PublicKey = $resultSet[0]["PUBLIC_KEY"];
+            $binPublicKey = sodium_base642bin($b64PublicKey, SODIUM_BASE64_VARIANT_ORIGINAL);
+            return $binPublicKey;
         }
 
-        public function encrypt($data)
+        public static function encrypt($data)
         {
-            $publicKey = sodium_base642bin($this->getPublicKey(), SODIUM_BASE64_VARIANT_ORIGINAL);
+            $publicKey = sodium_base642bin(Encryption::getPublicKey(), SODIUM_BASE64_VARIANT_ORIGINAL);
             $encryptedData = sodium_crypto_box_seal($data, $publicKey);
             return sodium_bin2base64($encryptedData, SODIUM_BASE64_VARIANT_ORIGINAL);
         }
 
-        public function decrypt($b64data)
+        public static function decrypt($b64data)
         {
-            $resultSet = $this->select("SELECT KEY_PAIR FROM encryption");
+            $resultSet = Database::select("SELECT KEY_PAIR FROM encryption");
             $b64keypair = $resultSet[0]['KEY_PAIR'];
 
             $binkeypair = sodium_base642bin($b64keypair, SODIUM_BASE64_VARIANT_ORIGINAL);
