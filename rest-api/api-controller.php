@@ -1,6 +1,6 @@
 <?php
 
-    require_once(PROJECT_ROOT_PATH."/modelo/modelo-controller.php");
+    require_once(PROJECT_ROOT_PATH."/modelo/load-modelo.php");
 
     class ApiController extends Database
     {

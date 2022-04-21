@@ -112,10 +112,33 @@
                 throw New Exception($e->getMessage());
             }
 
-            return false;
+            return null;
         }
-    
-        //DEJAR EL INSERT COMO PROTECTED CAMBIAN NO OLVIDAR//
+
+        /**
+         * Ejecutar update contra base de datos.
+         * 
+         * @param string $query
+         * @param array $params Opcional
+         * @param string $dataTypes Opcional
+         * @return bool
+         */
+        protected static function update($query = "", $params = [], $dataTypes = "")
+        {
+            try 
+            {
+                $stmt = Database::executeStatement($query, $params, $dataTypes);
+                $result = $stmt->get_result();     
+                $stmt->close();
+                return $result;
+            } 
+            catch(Exception $e) 
+            {
+                throw New Exception($e->getMessage());
+            }
+
+            return null;
+        }
 
         /**
          * Ejecutar insert contra base de datos.
@@ -125,12 +148,12 @@
          * @param string $dataTypes Opcional
          * @return bool
          */
-        public static function insert($query = "", $params = [], $dataTypes = "")
+        protected static function insert($query = "", $params = [], $dataTypes = "")
         {
             try 
             {
                 $stmt = Database::executeStatement($query, $params, $dataTypes);
-                $result = $stmt->get_result();               
+                $result = $stmt->insert_id;              
                 $stmt->close();
                 return $result;
             } 
@@ -139,7 +162,7 @@
                 throw New Exception($e->getMessage());
             }
 
-            return false;
+            return null;
         }
     }
 

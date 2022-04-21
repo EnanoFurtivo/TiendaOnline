@@ -6,23 +6,43 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
     {
         private $idUsuario = null;
         private $username = null;
+        private $ordenes = null;
+        private $mail = null;
+        private $telefono = null;
 
         public function __construct($username) {
-            $this->username = $username;
-        }
+            $datosUsuario = $this->select("SELECT * FROM usuario WHERE USERNAME = ?", [$username]);
+            if (empty($datosUsuario))
+                return null;
 
+            //Aca traemos mas datos del usuario de la base de datos..//
+            $this->idUsuario = $datosUsuario[0]["ID_USUARIO"];
+            $this->username = $datosUsuario[0]["USERNAME"];
+            $this->mail = $datosUsuario[0]["MAIL"];
+            $this->telefono = $datosUsuario[0]["TELEFONO"];
+            
+            $this->fetchOrdenes();
+        }
+                                                                       
         /**
-         * Obtiene una instancia de usuario.
+         * Actualizar ordenes del usuario.
          * 
-         * @param string $username
-         * @return User
+         * @param int $idUsuario
+         * @return array
          */
-        public static function getUsuario($username) {
-            $usuario = new static($username);
-            return $usuario;
+        public function fetchOrdenes() {
+            $resultSet = $this->select("SELECT * FROM orden WHERE ID_USUARIO = ?", [$this->idUsuario]);
+            $ordenes = [];
+
+            foreach ($resultSet as $key => $value) {
+                $idOrden = $resultSet[$key]["ID_ORDEN"];
+                $ordenes[$idOrden] = new Producto($idOrden);
+            }
+
+            $this->$ordenes = $ordenes;
         }
 
-        //                    $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
+        //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
         //                    $$  __$$\\__$$  __|$$  __$$\\__$$  __|\_$$  _|$$  __$$\ 
         //                    $$ /  \__|  $$ |   $$ /  $$ |  $$ |     $$ |  $$ /  \__|
         //                    \$$$$$$\    $$ |   $$$$$$$$ |  $$ |     $$ |  $$ |      
@@ -32,7 +52,7 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
         //                     \______/   \__|   \__|  \__|  \__|   \______| \______/                                                 
 
         /** 
-         * Valida las credenciales de un usuario.
+         * Validar las credenciales de un usuario.
          * 
          * @param string $username
          * @param string $password sha256 encoded
@@ -43,15 +63,52 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
 
             if(empty($resultSet))
                 return false;
-`            $storedPassword = $resultSet[0]["PASSWORD"];
+            $storedPassword = $resultSet[0]["PASSWORD"];
 
             if (Encryption::decrypt($storedPassword) == $password)
                 return true;
             else
                 return false;
         }
+
         /** 
-         * Valida el token de un usuario.
+         * Crear un nuevo usuario.
+         * 
+         * @param string $username
+         * @param string $password sha256 encoded
+         * @param string $mail
+         * @param string $telefono
+         * @param string $tipoCuenta Vendedor | Comprador
+         * @return Comprador|Vendedor|null 
+         */
+        public static function createUsuario($username, $password, $mail, $telefono, $tipoCuenta) {
+            $resultSet = Database::select("SELECT PASSWORD FROM usuario WHERE USERNAME = ?", [$username]);
+
+            if(!empty($resultSet))
+                return null;
+
+            $idUsuario = Database::insert("INSERT INTO usuario('USERNAME', 'PASSWORD', 'MAIL', 'TELEFONO', 'TIPO_USR') VALUES(?,?,?,?,?)", [$username, $password, $mail, $telefono, $tipoCuenta]);
+            
+            if(empty($idUsuario))
+                return null;
+
+            if ($tipoCuenta == 0)                   //Comprador
+                return new Comprador($idUsuario);
+            else                                    //Vendedor
+                return new Vendedor($idUsuario);
+        }
+
+        /**
+         * Eliminar logicamente el usuario.
+         * 
+         * @param int $idUsuario
+         */
+        public static function removeUsuario($idUsuario) {
+            Database::update("UPDATE usuario SET ACTIVO = ? WHERE ID_USUARIO = ?", [false, $idUsuario]);
+        }
+
+        /** 
+         * Validar el token de un usuario.
          * 
          * @param string $token
          * @return bool 
@@ -64,8 +121,9 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
             else
                 return false;
         }
+
         /** 
-         * Genera un token de acceso para el usuario.
+         * Generar un token de acceso para el usuario.
          * 
          * @param string $username
          * @param string $password
@@ -75,33 +133,16 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
             if (!Usuario::validarCredenciales($username, $password))
                 return null;
 
-            $usuario = Usuario::getUsuario($username);
-            if (!$usuario->fetchDatosUsuario())
+            $usuario = new Usuario($username);
+            if($usuario == null)
                 return null;
 
             $newToken = bin2hex(random_bytes(64));
             Database::insert("INSERT INTO token(ID_USUARIO, AUTHTOKEN) VALUES (?,?)", [$usuario->getId(),$newToken]);
             return $newToken;
         }
-        /** 
-         * Obtener datos del usuario.
-         * 
-         * @param string $username
-         * @return bool operacion exitosa
-         */
-        public function fetchDatosUsuario() {
-            $datosUsuario = $this->select("SELECT * FROM usuario WHERE USERNAME = ?", [$this->username]);
 
-            if (empty($datosUsuario))
-                return false;
-
-            //Aca traemos mas datos del usuario de la base de datos..//
-            $this->idUsuario = $datosUsuario[0]["ID_USUARIO"];
-            
-            return true;
-        }
-
-        //            $$$$$$\  $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  
+        //             $$$$$$\  $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  
         //            $$  __$$\ $$  _____|\__$$  __|\__$$  __|$$  _____|$$  __$$\ $$  __$$\ 
         //            $$ /  \__|$$ |         $$ |      $$ |   $$ |      $$ |  $$ |$$ /  \__|
         //            $$ |$$$$\ $$$$$\       $$ |      $$ |   $$$$$\    $$$$$$$  |\$$$$$$\  
@@ -111,6 +152,15 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
         //             \______/ \________|   \__|      \__|   \________|\__|  \__| \______/ 
 
         /**
+         * Obtener id del usuario.
+         * 
+         * @return int id
+         */
+        public function getId() {
+            return $this->idUsuario;
+        }
+
+        /**
          * Obtener nombre del usuario.
          * 
          * @return string username
@@ -118,40 +168,48 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
         public function getUsername() {
             return $this->username;
         }
+
         /**
-         * Obtener id del usuario.
+         * Obtener mail del usuario.
          * 
-         * @return string id
+         * @return string mail
          */
-        public function getId() {
-            return $this->idUsuario;
+        public function getMail() {
+            return $this->mail;
         }
+
         /**
-         * Obtener listado de ordenes para un usuario determinado.
+         * Obtener telefono del usuario.
          * 
-         * @param int $idUsuario
-         * @return array
+         * @return string telefono
          */
-        public function getOrdenes($idUsuario) {
-            return $this->select("SELECT * FROM orden WHERE ID_USUARIO = ?", [$idUsuario]);
+        public function getTelefono() {
+            return $this->telefono;
         }
+
+        /**
+         * Obtener las ordenes del usuario.
+         * 
+         * @return array|null
+         */
+        public function getOrdenes() {
+            $this->fetchOrdenes();
+            return $this->ordenes;
+        }
+
         /**
          * Obtener una orden.
          * 
-         * @param int $idUsuario
-         * @return array
+         * @param int $idOrden
+         * @return Orden|null
          */
         public function getOrden($idOrden) {
-            return $this->select("SELECT * FROM orden WHERE ID_ORDEN = ?", [$idOrden]);
+            try {
+                return $this->ordenes[$idOrden];
+            } catch (\Throwable $th) {
+                return null;
+            }
         }
-
-        //            $$$$$$\  $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  
-        //            $$  __$$\ $$  _____|\__$$  __|\__$$  __|$$  _____|$$  __$$\ $$  __$$\ 
-        //            $$ /  \__|$$ |         $$ |      $$ |   $$ |      $$ |  $$ |$$ /  \__|
-        //            \$$$$$$\  $$$$$\       $$ |      $$ |   $$$$$\    $$$$$$$  |\$$$$$$\  
-        //            $$\   $$ |$$ |         $$ |      $$ |   $$ |      $$ |  $$ |$$\   $$ |
-        //            \$$$$$$  |$$$$$$$$\    $$ |      $$ |   $$$$$$$$\ $$ |  $$ |\$$$$$$  |
-        //             \______/ \________|   \__|      \__|   \________|\__|  \__| \______/ 
 
     }
 

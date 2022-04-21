@@ -2,10 +2,9 @@
 
     class Comprador extends Usuario
     {
-        /* public function getProductos($limit)
-        {
-            return $this->select("SELECT * FROM producto LIMIT ?", "i", [$limit]);
-        } */
+        public function __construct($username) {
+            parent::__construct($username);
+        }
     }
 
 ?>

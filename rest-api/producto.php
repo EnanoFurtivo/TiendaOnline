@@ -12,15 +12,13 @@
 
             try 
             {
-                $producto = new Producto();
-
                 $intLimit = 50;
                 if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit'] > 0)
                     $intLimit = $arrQueryStringParams['limit'];
 
                 //Procesar la salida de datos//
-                $arrUsers = $producto->getProductos($intLimit);
-                $responseData = json_encode($arrUsers);
+                $arrProductos = Producto::getProductos($intLimit);
+                $responseData = json_encode($arrProductos);
                 $this->enviarRespuesta($responseData, 200);
             } 
             catch (Error $e) 
