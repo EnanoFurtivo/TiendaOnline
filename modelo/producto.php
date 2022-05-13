@@ -2,25 +2,25 @@
 
     class Producto extends Database
     {
-        private $idProducto = null;
-        private $sku = null;
-        private $titulo = null;
-        private $descripcion = null;
-        private $precio = null;
-        private $stock = null;
+        public $id = null;
+        public $sku = null;
+        public $titulo = null;
+        public $descripcion = null;
+        public $precio = null;
+        public $stock = null;
 
-        public function __construct($idProducto) {
-            $datosProducto = $this->select("SELECT * FROM producto WHERE ID_PRODUCTO = ?", [$idProducto]);
+        public function __construct($id) {
+            $datosProducto = $this->select("SELECT * FROM producto WHERE ID_PRODUCTO = ?", [$id]);
             if (empty($datosProducto))
                 return null;
 
             //Aca traemos mas datos del producto de la base de datos..//
-            $this->idProducto = $datosProducto[0]["ID_PRODUCTO"];
-            $this->sku = $datosProducto[0]["SKU"];
+            $this->id = $datosProducto[0]["ID_PRODUCTO"];
+            $this->sku = $datosProducto[0]["SKU_PRODUCTO"];
             $this->titulo = $datosProducto[0]["TITULO"];
-            $this->descripcion = $datosProducto[0]["DESCRIPCION"];
-            $this->precio = $datosProducto[0]["PRECIO"];
-            $this->stock = $datosProducto[0]["STOCK"];
+            //$this->descripcion = $datosProducto[0]["DESCRIPCION"];
+            //$this->precio = $datosProducto[0]["PRECIO"];
+            $this->stock = $datosProducto[0]["STOCK_PRODUCTO"];
         }
 
         //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
@@ -38,8 +38,24 @@
          * @param int $limit
          * @return array
          */
-        public static function getProductos($limit) {
-            return Database::select("SELECT * FROM producto LIMIT ?", [$limit]);
+        public static function getProductos($limit = 0) {
+            $resultSet = null;
+
+            if ($limit == 0)
+                $resultSet = Database::select("SELECT ID_PRODUCTO FROM producto");
+            else
+                $resultSet = Database::select("SELECT ID_PRODUCTO FROM producto LIMIT ?", [$limit]);
+
+            if(empty($resultSet))
+                return null;
+
+            $productos = [];
+            foreach ($resultSet as $key => $value) {
+                $id = $resultSet[$key]["ID_PRODUCTO"];
+                $productos[$id] = new Producto($id);
+            }
+
+            return $productos;
         }
 
         /**
@@ -53,34 +69,32 @@
          */
         public static function createProducto($sku, $titulo, $descripcion, $costo, $stock) {
             $resultSet = Database::select("SELECT * FROM producto WHERE SKU = ?", [$sku]);
-
             if(!empty($resultSet))
                 return false;
 
-            $idProducto = Database::insert("INSERT INTO producto('TITULO','DESCRIPCION','COSTO','STOCK') VALUES(?,?,?,?,?)", [ $titulo, $descripcion, $costo, $stock]);
-
-            if(empty($idProducto))
+            $id = Database::insert("INSERT INTO producto('TITULO','DESCRIPCION','COSTO','STOCK') VALUES(?,?,?,?,?)", [ $titulo, $descripcion, $costo, $stock ]);
+            if(empty($id))
                 return false;
 
-            return new Producto($idProducto);
+            return new Producto($id);
         }
 
         /**
          * Eliminar logicamente el producto.
          * 
-         * @param int $idProducto
+         * @param int $id
          */
-        public static function removeProducto($idProducto) {
-            Database::update("UPDATE producto SET ACTIVO = ? WHERE ID_PRODUCTO = ?", [false, $idProducto]);
+        public static function removeProducto($id) {
+            Database::update("UPDATE producto SET ACTIVO = ? WHERE ID_PRODUCTO = ?", [false, $id]);
         }
 
         /**
          * Obtener los assets para el cliente de unity.
          * 
-         * @param int $idProducto
+         * @param int $id
          * @return blob
          */
-        public static function get3DAssets($idProducto) {
+        public static function get3DAssets($id) {
             throw new Exception(); //no implementado aun
         }
 
@@ -99,7 +113,7 @@
          * @return int id
          */
         public function getId() {
-            return $this->idProducto;
+            return $this->id;
         }
 
         /**

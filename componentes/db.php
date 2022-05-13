@@ -123,7 +123,7 @@
          * @param string $dataTypes Opcional
          * @return bool
          */
-        protected static function update($query = "", $params = [], $dataTypes = "")
+        public static function update($query = "", $params = [], $dataTypes = "")
         {
             try 
             {
@@ -148,7 +148,7 @@
          * @param string $dataTypes Opcional
          * @return bool
          */
-        protected static function insert($query = "", $params = [], $dataTypes = "")
+        public static function insert($query = "", $params = [], $dataTypes = "")
         {
             try 
             {

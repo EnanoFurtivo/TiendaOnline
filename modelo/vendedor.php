@@ -4,28 +4,55 @@
     {
         private $productos = null;
 
-        public function __construct($username) {
-            parent::__construct($username);
-            $this->username = $username;
+        public function __construct($id) {
+            parent::__construct($id);
             $this->fetchProductos();
         }
          
         /** 
-         * Actualizar los productos de un vendedor.
+         * Obtener los productos de un vendedor.
          * 
-         * @param string $token
-         * @return bool 
          */
         public function fetchProductos() {
-            $resultSet = $this->select("SELECT * FROM producto WHERE ID_USUARIO = ?", [$this->idUsuario]);
-            $productos = [];
+            $resultSet = $this->select("SELECT ID_PRODUCTO FROM producto WHERE ID_VENDEDOR = ?", [$this->id]);
+            if(empty($resultSet))
+                return null;
 
+            $productos = [];
             foreach ($resultSet as $key => $value) {
-                $idProducto = $resultSet[$key]["ID_PRODUCTO"];
-                $productos[$idProducto] = new Producto($idProducto);
+                $id = $resultSet[$key]["ID_PRODUCTO"];
+                $productos[$id] = new Producto($id);
             }
 
-            $this->$productos = $productos;
+            $this->productos = $productos;
+        }
+
+        //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
+        //                    $$  __$$\\__$$  __|$$  __$$\\__$$  __|\_$$  _|$$  __$$\ 
+        //                    $$ /  \__|  $$ |   $$ /  $$ |  $$ |     $$ |  $$ /  \__|
+        //                    \$$$$$$\    $$ |   $$$$$$$$ |  $$ |     $$ |  $$ |      
+        //                     \____$$\   $$ |   $$  __$$ |  $$ |     $$ |  $$ |      
+        //                    $$\   $$ |  $$ |   $$ |  $$ |  $$ |     $$ |  $$ |  $$\ 
+        //                    \$$$$$$  |  $$ |   $$ |  $$ |  $$ |   $$$$$$\ \$$$$$$  |
+        //                     \______/   \__|   \__|  \__|  \__|   \______| \______/  
+
+        /** 
+         * Obtener todos los vendedores.
+         * 
+         * @return array Vendedor[]
+         */
+        public static function fetchVendedores() {
+            $resultSet = Database::select("SELECT * FROM usuario WHERE TIPO_USUARIO = ?", ["vendedor"]);
+            if(empty($resultSet))
+                return null;
+
+            $vendedores = array();
+            foreach ($resultSet as $key => $value) {
+                $id = $resultSet[$key]["ID_USUARIO"];
+                array_push($vendedores, new Vendedor($id));// $vendedores[$id] = ;
+            }
+
+            return $vendedores;
         }
 
         //             $$$$$$\  $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  
@@ -50,12 +77,12 @@
         /**
          * Obtener un producto del vendedor.
          * 
-         * @param int $idProducto
+         * @param int $id
          * @return Producto|null
          */
-        public function getOrden($idProducto) {
+        public function getOrden($id) {
             try {
-                return $this->productos[$idProducto];
+                return $this->productos[$id];
             } catch (\Throwable $th) {
                 return null;
             }

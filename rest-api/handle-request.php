@@ -2,21 +2,19 @@
 
     require_once(PROJECT_ROOT_PATH."/rest-api/api-controller.php");
 
-    if (!isset($uri[$uriOffset+2]) || $uri[$uriOffset+2] == "")
-        ApiController::enviarRespuesta("Se esperaba clase y metodo para acceder a la api.", 400);
+    if (!isset($endPoint) || $endPoint == "" || !isset($uri[0]) || $uri[0] == "")
+        ApiController::enviarRespuesta("Se esperaba endpoint para acceder a la api.", 400);
 
-    $endPoint = strtolower($uri[$uriOffset+1]);
-    $strMethodName = strtolower($uri[$uriOffset+2]);
     $apiFileName = $endPoint.".php";
     $apiFilePath = PROJECT_ROOT_PATH."/rest-api/".$endPoint.".php";
-    $modelControllerClass = $uri[$uriOffset+1].'Controller';
+    $modelControllerClass = $endPoint.'Controller';
 
     //AUTENTIFICAR CLIENTE//
     $authtokenMissing = (!isset($_POST["auth_token"]) || $_POST["auth_token"] == "");
     $missingUsername = (!isset($_POST["username"]) || $_POST["username"] == "");
     $missingPassword = (!isset($_POST["password"]) || $_POST["password"] == "");
     $credentialsMissing = ($missingUsername || $missingPassword);
-    $isRequestGenerarToken = ($endPoint == "usuario" && $strMethodName == "generar_token");
+    $isRequestGenerarToken = ($endPoint == "usuario" && $uri[0] == "generar_token");
 
     if ($authtokenMissing && !$isRequestGenerarToken)
         ApiController::enviarRespuesta("Se esperaba un token de acceso.", 400);
@@ -33,10 +31,10 @@
 
     //ERORR INTERNO DE PROGRAMACION, NO DEBERIA OCURRIR//
     if (!class_exists($modelControllerClass))
-        ApiController::enviarRespuesta("No existe la clase '".$modelControllerClass."' correspondiente al point requerido.", 501);
+        ApiController::enviarRespuesta("No existe la clase '".$modelControllerClass."' correspondiente al end point requerido.", 501);
     
     //Crear instancia de la clase controladora que corresponda y ejecutar el metodo requerido//
     $objController = new $modelControllerClass();
-    $objController->{$strMethodName}();
+    $objController->handle_request($uri);
 
 ?>

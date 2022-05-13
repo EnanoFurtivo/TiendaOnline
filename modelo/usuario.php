@@ -4,22 +4,24 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
 
     class Usuario extends Database
     {
-        private $idUsuario = null;
-        private $username = null;
+        public $id = null;
+        public $username = null;
         private $ordenes = null;
-        private $mail = null;
-        private $telefono = null;
+        public $mail = null;
+        public $telefono = null;
+        public $preview_path = null;
 
-        public function __construct($username) {
-            $datosUsuario = $this->select("SELECT * FROM usuario WHERE USERNAME = ?", [$username]);
+        public function __construct($id) {
+            $datosUsuario = $this->select("SELECT * FROM usuario WHERE ID_USUARIO = ?", [$id]);
             if (empty($datosUsuario))
                 return null;
 
             //Aca traemos mas datos del usuario de la base de datos..//
-            $this->idUsuario = $datosUsuario[0]["ID_USUARIO"];
+            $this->id = $datosUsuario[0]["ID_USUARIO"];
             $this->username = $datosUsuario[0]["USERNAME"];
             $this->mail = $datosUsuario[0]["MAIL"];
             $this->telefono = $datosUsuario[0]["TELEFONO"];
+            $this->preview_path = "/datos/usuarios/".$this->id."/preview.png";
             
             $this->fetchOrdenes();
         }
@@ -27,19 +29,21 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
         /**
          * Actualizar ordenes del usuario.
          * 
-         * @param int $idUsuario
+         * @param int $id
          * @return array
          */
         public function fetchOrdenes() {
-            $resultSet = $this->select("SELECT * FROM orden WHERE ID_USUARIO = ?", [$this->idUsuario]);
+            $resultSet = $this->select("SELECT * FROM orden WHERE ID_USUARIO = ?", [$this->id]);
+            if(empty($resultSet))
+                return null;
+            
             $ordenes = [];
-
             foreach ($resultSet as $key => $value) {
                 $idOrden = $resultSet[$key]["ID_ORDEN"];
-                $ordenes[$idOrden] = new Producto($idOrden);
+                $ordenes[$idOrden] = new Orden($idOrden);
             }
 
-            $this->$ordenes = $ordenes;
+            $this->ordenes = $ordenes;
         }
 
         //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
@@ -82,29 +86,33 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
          * @return Comprador|Vendedor|null 
          */
         public static function createUsuario($username, $password, $mail, $telefono, $tipoCuenta) {
-            $resultSet = Database::select("SELECT PASSWORD FROM usuario WHERE USERNAME = ?", [$username]);
+            $resultSet = Database::select("SELECT * FROM usuario WHERE USERNAME = ?", [$username]);
 
             if(!empty($resultSet))
                 return null;
 
-            $idUsuario = Database::insert("INSERT INTO usuario('USERNAME', 'PASSWORD', 'MAIL', 'TELEFONO', 'TIPO_USR') VALUES(?,?,?,?,?)", [$username, $password, $mail, $telefono, $tipoCuenta]);
+            $id = Database::insert("INSERT INTO usuario('USERNAME', 'PASSWORD', 'MAIL', 'TELEFONO', 'TIPO_USR') VALUES(?,?,?,?,?)", [$username, $password, $mail, $telefono, $tipoCuenta]);
             
-            if(empty($idUsuario))
+            if(empty($id))
                 return null;
 
             if ($tipoCuenta == 0)                   //Comprador
-                return new Comprador($idUsuario);
+                $resultObj = new Comprador($id);
             else                                    //Vendedor
-                return new Vendedor($idUsuario);
+                $resultObj = new Vendedor($id);
+                
+            mkdir("/datos/usuarios/".$resultObj->id, 0700); //crear directorio para imagen preview
+
+            return $resultObj;
         }
 
         /**
          * Eliminar logicamente el usuario.
          * 
-         * @param int $idUsuario
+         * @param int $id
          */
-        public static function removeUsuario($idUsuario) {
-            Database::update("UPDATE usuario SET ACTIVO = ? WHERE ID_USUARIO = ?", [false, $idUsuario]);
+        public static function removeUsuario($id) {
+            Database::update("UPDATE usuario SET ACTIVO = ? WHERE ID_USUARIO = ?", [false, $id]);
         }
 
         /** 
@@ -133,7 +141,11 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
             if (!Usuario::validarCredenciales($username, $password))
                 return null;
 
-            $usuario = new Usuario($username);
+            $id = Database::select("SELECT ID_USUARIO FROM usuario WHERE USERNAME = ?",[$username])[0]["ID_USUARIO"];
+            if(empty($id))
+                return null;
+
+            $usuario = new Usuario($id);
             if($usuario == null)
                 return null;
 
@@ -157,7 +169,7 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
          * @return int id
          */
         public function getId() {
-            return $this->idUsuario;
+            return $this->id;
         }
 
         /**

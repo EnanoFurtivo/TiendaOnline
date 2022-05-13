@@ -3,7 +3,26 @@
     class UsuarioController extends ApiController
     {
         /**
-         * "/usuario/generarToken" Endpoint - Generar token para el cliente
+         * Parsear la peticion, y ejecutar el metodo deseado
+         */
+        public function handle_request($uri)
+        {
+            switch ($uri[0]) 
+            {
+                //  "/usuario/generar_token"  //
+                case 'generar_token':
+                    $this->generar_token();
+                    break;
+                
+                //  "/usuario/..."  //
+                default:
+                    $this->enviarRespuesta("No existe el endpoint solicitado.", 404);
+                    break;
+            }
+        }
+
+        /**
+         * "/usuario/generartoken" Endpoint - Generar token para el cliente
          */
         public function generar_token()
         {
@@ -13,7 +32,7 @@
             {
                 $missingUsername = (!isset($_POST["username"]) || $_POST["username"] == "");
                 $missingPassword = (!isset($_POST["password"]) || $_POST["password"] == "");
-
+                 
                 if ($missingUsername || $missingPassword)
                     $this->enviarRespuesta("Se esperaban credenciales del cliente validas.", 401);
 
