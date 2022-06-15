@@ -14,13 +14,17 @@ var vendedor_productos = {
     id_modal_eliminar:  'modal-productos-eliminar',
     
     //DATOS MODAL//
-    id_sku:       'modal-productos-SKU',
-    id_titulo:    'modal-productos-TITULO',
-    id_precio:    'modal-productos-PRECIO',
-    id_stock:     'modal-productos-STOCK',
-    id_escala:    'modal-productos-ESCALA',
-    id_obj:       'modal-productos-OBJ',
-    id_mtl:       'modal-productos-MTL',
+    id_sku:         'modal-productos-SKU',
+    id_titulo:      'modal-productos-TITULO',
+    id_precio:      'modal-productos-PRECIO',
+    id_stock:       'modal-productos-STOCK',
+    id_escala:      'modal-productos-ESCALA',
+    id_obj:         'modal-productos-OBJ',
+    id_mtl:         'modal-productos-MTL',
+    id_img:         'modal-productos-IMG',
+    id_obj_file:    'modal-productos-OBJ-file',
+    id_mtl_file:    'modal-productos-MTL-file',
+    id_img_file:    'modal-productos-IMG-file',
 
     //FUNCIONES PARA IMPLEMENTAR LAZY LOADING//
     inicializar: function()
@@ -52,6 +56,7 @@ var vendedor_productos = {
         document.getElementById(this.id_titulo).disabled = true;
         document.getElementById(this.id_obj).hidden = true;
         document.getElementById(this.id_mtl).hidden = true;
+        document.getElementById(this.id_img).hidden = true;
 
         document.getElementById(this.id_modal_eliminar).hidden = true;
         document.getElementById(this.id_modal_success).hidden = true;
@@ -71,6 +76,7 @@ var vendedor_productos = {
                 document.getElementById(this.id_titulo).disabled = false;
                 document.getElementById(this.id_obj).hidden = false;
                 document.getElementById(this.id_mtl).hidden = false;
+                document.getElementById(this.id_img).hidden = false;
                 document.getElementById(this.id_modal_success).hidden = false;
                 break;
 
@@ -118,20 +124,17 @@ var vendedor_productos = {
     },
 
     agregar_producto: function()
-    {
-        id_vendedor = document.getElementById("idUsr").value;
-        sku = document.getElementById(this.id_sku).value;
-        titulo = document.getElementById(this.id_titulo).value;
-        stock = document.getElementById(this.id_stock).value;
-        precio = document.getElementById(this.id_precio).value;
-        scale = document.getElementById(this.id_escala).value;
-
+    {      
+        var formData = new FormData($("#modal-productos-form")[0]);
         page = this;
         $.ajax({
             url: 'paginas/vendedor/productos/agregar-producto.php',
             type: 'POST',
-            async: true,
-            data: {id_vendedor: id_vendedor, sku: sku, titulo: titulo, precio: precio, stock: stock, scale: scale},
+            mimeType: "multipart/form-data",
+            data: formData,
+            contentType: false,
+            cache: false,
+            processData: false,
             success: function(response)
             {
                 bootstrap.Modal.getInstance(document.getElementById('modal-productos')).hide();
@@ -145,7 +148,26 @@ var vendedor_productos = {
     },
     modificar_producto: function()
     {
+        stock = document.getElementById(this.id_stock).value;
+        precio = document.getElementById(this.id_precio).value;
+        scale = document.getElementById(this.id_escala).value;
 
+        page = this;
+        $.ajax({
+            url: 'paginas/vendedor/productos/modificar-producto.php',
+            type: 'POST',
+            async: true,
+            data: {id: this.cur_id, precio: precio, stock: stock, scale: scale},
+            success: function(response)
+            {
+                bootstrap.Modal.getInstance(document.getElementById('modal-productos')).hide();
+                notificarToast({ tipo: 'success', contenido: response });
+            },
+            error: function(response)
+            {
+                notificarToast({ tipo: 'danger', contenido: response.responseText });
+            }
+        });
     },
     eliminar_producto: function()
     {

@@ -51,10 +51,11 @@
         <p>Construido con 
         <a href="https://unity.com/" class="text-white">Unity</a>, 
         <a href="https://docs.microsoft.com/en-us/dotnet/csharp/" class="text-white">C#</a>, 
-        <a href="https://assetstore.unity.com/packages/tools/modeling/runtime-obj-importer-49547" class="text-white">Runtime OBJ Importer</a>, 
+        <a href="https://assetstore.unity.com/packages/tools/modeling/runtime-obj-importer-49547" class="text-white">Runtime OBJ Importer</a> | 
         <a href="https://en.wikipedia.org/wiki/HTML" class="text-white">HTML 5</a>, 
         <a href="https://en.wikipedia.org/wiki/JavaScript" class="text-white">Java Script</a>, 
-        <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, 
+        <a href="https://en.wikipedia.org/wiki/CSS" class="text-white">CSS</a>, 
+        <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a> | 
         <a href="https://www.php.net/" class="text-white">PHP</a>, 
         <a href="https://github.com/jedisct1/libsodium" class="text-white">Sodium</a>, 
         <a href="https://www.php.net/" class="text-white">Apache</a>, 

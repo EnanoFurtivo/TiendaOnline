@@ -42,32 +42,6 @@
         //                     \______/   \__|   \__|  \__|  \__|   \______| \______/                                                 
 
         /**
-         * Obtener listado de productos.
-         * 
-         * @param int $limit
-         * @return array
-         */
-        public static function getProductos($limit = 0) {
-            $resultSet = null;
-
-            if ($limit == 0)
-                $resultSet = Database::select("SELECT ID_PRODUCTO FROM producto");
-            else
-                $resultSet = Database::select("SELECT ID_PRODUCTO FROM producto LIMIT ?", [$limit]);
-
-            if(empty($resultSet))
-                return null;
-
-            $productos = [];
-            foreach ($resultSet as $key => $value) {
-                $id = $resultSet[$key]["ID_PRODUCTO"];
-                $productos[$id] = new Producto($id);
-            }
-
-            return $productos;
-        }
-
-        /**
          * Crear nuevo producto.
          * 
          * @param int $sku
@@ -101,15 +75,6 @@
                 return false;
         }
 
-        /**
-         * Eliminar logicamente el producto.
-         * 
-         * @param int $id
-         */
-        public static function removeProducto($id) {
-            Database::update("UPDATE producto SET ACTIVO = ? WHERE ID_PRODUCTO = ?", [false, $id]);
-        }
-
         //             $$$$$$\  $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  
         //            $$  __$$\ $$  _____|\__$$  __|\__$$  __|$$  _____|$$  __$$\ $$  __$$\ 
         //            $$ /  \__|$$ |         $$ |      $$ |   $$ |      $$ |  $$ |$$ /  \__|
@@ -120,50 +85,34 @@
         //             \______/ \________|   \__|      \__|   \________|\__|  \__| \______/ 
         
         /**
-         * Obtener id del producto.
+         * Set precio del producto.
          * 
-         * @return int id
+         * @param double precio
          */
-        public function getId() {
-            return $this->id;
-        }
-
-        /**
-         * Obtener titulo del producto.
-         * 
-         * @return string titulo
-         */
-        public function getTitulo() {
-            return $this->titulo;
-        }
-
-        /**
-         * Obtener descripcion del producto.
-         * 
-         * @return string descripcion
-         */
-        public function getDescripcion() {
-            return $this->descripcion;
-        }
-
-        /**
-         * Obtener precio del producto.
-         * 
-         * @return double precio
-         */
-        public function getPrecio() {
-            return $this->precio;
-        }
-
-        /**
-         * Obtener stock del producto.
-         * 
-         * @return int stock
-         */
-        public function getStock() {
-            return $this->stock;
+        public function setPrecio($precio) {
+            $this->precio = $precio;
+            Database::update("UPDATE producto SET PRECIO = ? WHERE ID_PRODUCTO = ?", [ $precio, $this->id ]);
         }
         
+        /**
+         * Set escala del producto.
+         * 
+         * @param double escala
+         */
+        public function setEscala($scale) {
+            $this->scale = $scale;
+            Database::update("UPDATE producto SET SCALE = ? WHERE ID_PRODUCTO = ?", [ $scale, $this->id ]);
+        }
+        
+        /**
+         * Set stock del producto.
+         * 
+         * @param int stock
+         */
+        public function setStock($stock) {
+            $this->stock = $stock;
+            Database::update("UPDATE producto SET STOCK_PRODUCTO = ? WHERE ID_PRODUCTO = ?", [ $stock, $this->id ]);
+        }
     }
 
 ?>

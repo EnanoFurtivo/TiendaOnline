@@ -41,6 +41,13 @@
         <li class="flex-grow-1"></li>
 
         <li class="d-grid nav-item">
+            <li class="mb-3">
+                <image width="38" height="38" x="0" y="0" src="datos/usuarios/<?php echo $idUsr; ?>/preview.png" />
+                <a class="text-white ms-2"><?php echo $nombreUsr; ?></a>
+            </li>
+        </li>
+
+        <li class="d-grid nav-item">
             <form class="d-grid nav-item" action="login.php" method="post">
                 <input type="text" class="form-control" name="close_session" value="true" hidden>
                 <button class="btn btn-secondary flex-grow-1" type="submit">Cerrar Sesion</button>

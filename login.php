@@ -77,6 +77,7 @@
                         set_cookie("authtoken", $new_token, $cookie_timeout_days);
                     }	
 
+                    $nombreUsr = $username;
                     $tipoUsr = $user_credentials["TIPO_USUARIO"];
                     $idUsr = $user_credentials["ID_USUARIO"];
                     $authenticated = true;
@@ -108,7 +109,8 @@
                 {
                     $_SESSION["username"] = $username;
                     $_SESSION["authtoken"] = $authtoken;
-
+                    
+                    $nombreUsr = $username;
                     $tipoUsr = $user_credentials["TIPO_USUARIO"];
                     $idUsr = $user_credentials["ID_USUARIO"];
                     $authenticated = true;

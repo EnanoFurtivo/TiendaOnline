@@ -23,14 +23,11 @@
             require_once(PROJECT_ROOT_PATH.'/vendor/autoload.php');
             require_once(PROJECT_ROOT_PATH.'/modelo/load-modelo.php');
 
-            $resultSet = Database::select("SELECT ID_USUARIO FROM usuario WHERE USERNAME = ?", [$username]);
-            if (empty($resultSet))
+            if (empty(Database::select("SELECT ID_USUARIO FROM usuario WHERE USERNAME = ?", [$username])))
             {
                 if ($password == $rep_password)
                 {
-                    $passwordHash = hash('sha256', $password);
-                    $passwordEncrypted = Encryption::encrypt($passwordHash);
-                    Database::insert("INSERT INTO usuario(USERNAME, PASSWORD, MAIL, TELEFONO, TIPO_USUARIO) VALUES (?,?,?,?,?)", [$username, $passwordEncrypted, $email, $telefono, $tipo_usuario]);
+                    Usuario::createUsuario($username, $password, $email, $telefono, $tipo_usuario, $_FILES["img"]["tmp_name"], $_FILES["img"]["name"]);
 		            header('Location: http://'.$_SERVER['HTTP_HOST'].'/tiendaonline/login.php');
                 }
                 else
@@ -71,11 +68,11 @@
         <link rel="stylesheet" href="librerias/bootstrap/icons/bootstrap-icons.css">
     </head>
 
-    <body>
+    <body class="background">
         <link rel="stylesheet" href="login.css">
 
         <main class="form-signin text-center">
-            <form action="registro.php" method="post">
+            <form action="registro.php" method="post" enctype="multipart/form-data">
                 <a class="sidebar-title d-flex flex-shrink-0 text-light text-decoration-none mb-4 align-items-center justify-content-center">
                     <image class="me-2" id="logo" width="42" height="42" x="0" y="0" src="assets/logo.png"/>
                     <p class="login-title h1">TiendaOnline</p>
@@ -93,9 +90,14 @@
                     <label for="login-email">Email</label>
                 </div>
                 
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control straight-top" id="login-telefono" placeholder="Telefono" name="telefono">
+                <div class="form-floating">
+                    <input type="text" class="form-control straight-top straight-bottom" id="login-telefono" placeholder="Telefono" name="telefono">
                     <label for="login-telefono">Telefono</label>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control straight-top" accept=".jpg,.png" name="img">
+                    <span class="input-group-text straight-top">icono</span>
                 </div>
 
                 <div class="form-floating">
@@ -108,10 +110,10 @@
                     <label for="login-reppassword">Repita la contraseña</label>
                 </div>
 
-                    <select class="form-select mb-3" id="login-combobox" placeholder="reppassword" name="tipousr">
-                        <option value="comprador" selected>comprador</option>
-                        <option value="vendedor">vendedor</option>
-                    </select>
+                <select class="form-select mb-3" id="login-combobox" placeholder="reppassword" name="tipousr">
+                    <option value="comprador" selected>comprador</option>
+                    <option value="vendedor">vendedor</option>
+                </select>
 
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Crear cuenta</button>
                 

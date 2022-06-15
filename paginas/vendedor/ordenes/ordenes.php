@@ -18,9 +18,9 @@
     <div class="collapse navbar-collapse flex-row-reverse" id="productos-navbarSupportedContent">
       <form onsubmit="return false;">
         <ul class="navbar-nav">
-          <li class="nav-item ms-lg-2 mb-lg-0 mt-lg-0 ms-md-0 mb-md-1 mt-md-0">
+          <!-- <li class="nav-item ms-lg-2 mb-lg-0 mt-lg-0 ms-md-0 mb-md-1 mt-md-0">
             <input type="search" id="ordenes-busqueda" class="form-control form-control-dark" placeholder="Busqueda..." aria-label="Busqueda" oninput="vendedor_ordenes.filter_table(this.value);" disabled>
-          </li>
+          </li> -->
         </ul>
       </form>
     </div>

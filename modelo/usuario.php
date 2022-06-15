@@ -83,13 +83,15 @@
          * @param string $tipoCuenta Vendedor | Comprador
          * @return Comprador|Vendedor|null 
          */
-        public static function createUsuario($username, $password, $mail, $telefono, $tipoCuenta) {
+        public static function createUsuario($username, $password, $mail, $telefono, $tipoCuenta, $temp_name = null, $name = null) {
             $resultSet = Database::select("SELECT * FROM usuario WHERE USERNAME = ?", [$username]);
 
             if(!empty($resultSet))
                 return null;
-
-            $id = Database::insert("INSERT INTO usuario('USERNAME', 'PASSWORD', 'MAIL', 'TELEFONO', 'TIPO_USR') VALUES(?,?,?,?,?)", [$username, $password, $mail, $telefono, $tipoCuenta]);
+            
+            $passwordHash = hash('sha256', $password);
+            $passwordEncrypted = Encryption::encrypt($passwordHash);
+            $id = Database::insert("INSERT INTO usuario(USERNAME, PASSWORD, MAIL, TELEFONO, TIPO_USUARIO) VALUES(?,?,?,?,?)", [$username, $passwordEncrypted, $mail, $telefono, $tipoCuenta]);
             
             if(empty($id))
                 return null;
@@ -99,7 +101,16 @@
             else                                    //Vendedor
                 $resultObj = new Vendedor($id);
                 
-            mkdir("/datos/usuarios/".$resultObj->id, 0700); //crear directorio para imagen preview
+            $dir = "datos/usuarios/".$id."/";
+            mkdir($dir, 0700, true);
+
+            if ($temp_name == null)
+                copy("assets/preview-user.png", $dir."preview.png");
+            else
+            {
+                $imageFileType = strtolower(pathinfo($dir.basename($name), PATHINFO_EXTENSION));
+                move_uploaded_file($temp_name, $dir."preview.".$imageFileType);
+            }
 
             return $resultObj;
         }

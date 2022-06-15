@@ -18,9 +18,9 @@
     <div class="collapse navbar-collapse flex-row-reverse" id="productos-navbarSupportedContent">
       <form onsubmit="return false;">
         <ul class="navbar-nav">
-          <li class="nav-item ms-lg-2 mb-lg-0 mt-lg-0 ms-md-0 mb-md-1 mt-md-0">
+          <!-- <li class="nav-item ms-lg-2 mb-lg-0 mt-lg-0 ms-md-0 mb-md-1 mt-md-0">
             <input type="search" id="productos-busqueda" class="form-control form-control-dark" placeholder="Busqueda..." aria-label="Busqueda" oninput="vendedor_productos.filter_table(this.value);" disabled>
-          </li>
+          </li> -->
           
             <li class="nav-item ms-lg-2 mb-lg-0 mt-lg-0 ms-md-0 mb-md-1 mt-md-0">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-productos" onclick="vendedor_productos.abrir_modal('agregar');">
@@ -95,7 +95,7 @@
         <div class="modal-body" id="modal-productos-eliminar"></div>
         <div class="modal-body" id="modal-productos-body">
 
-          <form class="form-window form-frame" action="paginas/vendedor/productos/agregar-producto.php" method="post" enctype="multipart/form-data">
+          <form class="form-window form-frame" id="modal-productos-form" onsubmit="return false;">
             <input value="<?php echo $idUsr ?>" name="id_vendedor" hidden>
             <div class="input-group mb-3">
               <span class="input-group-text">Sku</span>
@@ -120,20 +120,23 @@
               <input type="text" class="form-control" id="modal-productos-ESCALA" value="1" name="scale">
             </div>
             <div class="input-group mb-3 mt-3" id="modal-productos-OBJ">
-              <input type="file" class="form-control" accept=".obj" name="obj">
+              <input type="file" class="form-control" id="modal-productos-OBJ-file" accept=".obj" name="obj">
               <span class="input-group-text">obj</span>
             </div>
             <div class="input-group mb-3" id="modal-productos-MTL">
-              <input type="file" class="form-control" accept=".mtl" name="mtl">
+              <input type="file" class="form-control" id="modal-productos-MTL-file" accept=".mtl" name="mtl">
               <span class="input-group-text">mtl</span>
             </div>
+            <div class="input-group mb-3" id="modal-productos-IMG">
+              <input type="file" class="form-control" id="modal-productos-IMG-file" accept=".jpg,.png" name="img">
+              <span class="input-group-text">preview</span>
+            </div>
 
-            <button type="submit" class="btn btn-success" id="modal-productos-success">Agregar</button>
           </form>
-
         </div>
 
         <div class="modal-footer">
+          <button type="submit" class="btn btn-success" id="modal-productos-success" onclick="vendedor_productos.agregar_producto();">Agregar</button>
           <button type="button" class="btn btn-warning" id="modal-productos-warning" onclick="vendedor_productos.modificar_producto();">Modificar</button>
           <button type="button" class="btn btn-danger" id="modal-productos-danger" onclick="vendedor_productos.eliminar_producto();">Confirmar</button>
         </div>

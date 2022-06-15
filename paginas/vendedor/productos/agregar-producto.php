@@ -60,10 +60,14 @@
     }
 
     $dir = PROJECT_ROOT_PATH."/datos/productos/".$producto->id;
+    $imageFileType = strtolower(pathinfo($dir.basename($_FILES["img"]["name"]), PATHINFO_EXTENSION));
+
     mkdir($dir, 0700, true);
     move_uploaded_file($_FILES["obj"]["tmp_name"], $dir."/modelo.obj");
     move_uploaded_file($_FILES["mtl"]["tmp_name"], $dir."/modelo.mtl");
+    move_uploaded_file($_FILES["img"]["tmp_name"], $dir."/preview.".$imageFileType);
 
     echo "Producto agregado con exito";
+    header('Location: http://'.$_SERVER['HTTP_HOST'].'/tiendaonline');
     http_response_code(200);
 ?>
