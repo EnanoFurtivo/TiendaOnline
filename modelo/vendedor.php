@@ -2,11 +2,10 @@
 
     class Vendedor extends Usuario
     {
-        private $productos = null;
+        private $productos = array();
 
         public function __construct($id) {
             parent::__construct($id);
-            $this->fetchProductos();
         }
          
         /** 
@@ -18,13 +17,31 @@
             if(empty($resultSet))
                 return null;
 
-            $productos = [];
+            $productos = array();
             foreach ($resultSet as $key => $value) {
                 $id = $resultSet[$key]["ID_PRODUCTO"];
-                $productos[$id] = new Producto($id);
+                array_push($productos, new Producto($id));
             }
 
             $this->productos = $productos;
+        }
+
+        /**
+         * Actualizar ordenes del vendedor.
+         * @return void
+         */
+        protected function fetchOrdenes() {
+            $resultSet = $this->select("SELECT * FROM orden WHERE ID_VENDEDOR = ?", [$this->id]);
+            if(empty($resultSet))
+                return;
+            
+            $ordenes = array();
+            foreach ($resultSet as $key => $value) {
+                $idOrden = $resultSet[$key]["ID_ORDEN"];
+                $ordenes[$idOrden] = new Orden($idOrden);
+            }
+
+            $this->ordenes = $ordenes;
         }
 
         //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
@@ -42,7 +59,7 @@
          * @return array Vendedor[]
          */
         public static function fetchVendedores() {
-            $resultSet = Database::select("SELECT * FROM usuario WHERE TIPO_USUARIO = ?", ["vendedor"]);
+            $resultSet = Database::select("SELECT ID_USUARIO FROM usuario WHERE TIPO_USUARIO = ?", ["vendedor"]);
             if(empty($resultSet))
                 return null;
 

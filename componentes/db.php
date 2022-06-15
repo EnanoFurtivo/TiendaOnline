@@ -59,7 +59,7 @@
         {
             try 
             {
-                $conn = Database::getConnection(Database::$dbName);
+                $conn = Database::getConnection();
                 $stmt = $conn->prepare($query);
     
                 if ($stmt === false)
@@ -98,7 +98,7 @@
          * @param string $dataTypes Opcional
          * @return array
          */
-        protected static function select($query = "", $params = [], $dataTypes = "")
+        public static function select($query = "", $params = [], $dataTypes = "")
         {
             try 
             {
@@ -163,6 +163,53 @@
             }
 
             return null;
+        }
+
+        /**
+         * Ejecutar delete contra base de datos.
+         * 
+         * @param string $query
+         * @param array $params Opcional
+         * @param string $dataTypes Opcional
+         * @return int affected_rows
+         */
+        public static function delete($query = "", $params = [], $dataTypes = "")
+        {
+            try 
+            {
+                $stmt = Database::executeStatement($query, $params, $dataTypes);
+                $result = $stmt->affected_rows;
+                $stmt->close();
+                return $result;
+            } 
+            catch(Exception $e) 
+            {
+                throw New Exception($e->getMessage());
+            }
+
+            return null;
+        }
+
+        /**
+         * Scape string.
+         * 
+         * @param string $input_string
+         * @return string|"" scaped string
+         */
+        public static function scape($input_string)
+        {
+            try 
+            {
+                $conn = Database::getConnection();
+                $scaped_string = mysqli_real_escape_string($conn, $input_string);
+                return $scaped_string;
+            } 
+            catch(Exception $e) 
+            {
+                throw New Exception($e->getMessage());
+            }
+
+            return "";
         }
     }
 

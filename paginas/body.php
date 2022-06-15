@@ -1,4 +1,3 @@
-<?php /* require(dirname(__FILE__,2).'/login.php'); */ $tipoUsr = 'vendedor'; ?>
 <link rel="stylesheet" href="paginas/body.css">
 <script src="paginas/body.js"></script>
 
@@ -10,7 +9,7 @@
         <!-- SIDEBAR TITLE -->
 
         <a class="sidebar-title d-flex flex-shrink-0 text-white text-decoration-none">
-          <image width="38" height="38" x="0" y="0" src="assets/logo-tiendaonline.png" />
+          <image width="38" height="38" x="0" y="0" src="assets/logo.png" />
           <p class="sidebar-title-text h3">TiendaOnline</p>
         </a>
 
@@ -38,6 +37,15 @@
                 </a>
             </li>
         <?php } ?>
+
+        <li class="flex-grow-1"></li>
+
+        <li class="d-grid nav-item">
+            <form class="d-grid nav-item" action="login.php" method="post">
+                <input type="text" class="form-control" name="close_session" value="true" hidden>
+                <button class="btn btn-secondary flex-grow-1" type="submit">Cerrar Sesion</button>
+            </form>
+        </li>
 
     </ul>
 

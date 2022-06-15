@@ -8,6 +8,11 @@
         public $descripcion = null;
         public $precio = null;
         public $stock = null;
+        public $preview_path = null;
+
+        public $scale = null;
+        public $obj_path = null;
+        public $mtl_path = null;
 
         public function __construct($id) {
             $datosProducto = $this->select("SELECT * FROM producto WHERE ID_PRODUCTO = ?", [$id]);
@@ -18,9 +23,13 @@
             $this->id = $datosProducto[0]["ID_PRODUCTO"];
             $this->sku = $datosProducto[0]["SKU_PRODUCTO"];
             $this->titulo = $datosProducto[0]["TITULO"];
-            //$this->descripcion = $datosProducto[0]["DESCRIPCION"];
-            //$this->precio = $datosProducto[0]["PRECIO"];
+            $this->precio = $datosProducto[0]["PRECIO"];
             $this->stock = $datosProducto[0]["STOCK_PRODUCTO"];
+
+            $this->scale = $datosProducto[0]["SCALE"];
+            $this->preview_path = "/datos/productos/".$this->id."/preview.png";
+            $this->obj_path = "/datos/productos/".$this->id."/modelo.obj";
+            $this->mtl_path = "/datos/productos/".$this->id."/modelo.mtl";
         }
 
         //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
@@ -63,20 +72,33 @@
          * 
          * @param int $sku
          * @param string $titulo
-         * @param string $descripcion
-         * @param double $costo
          * @param int $stock
+         * @param double $scale
+         * @param string $precio
          */
-        public static function createProducto($sku, $titulo, $descripcion, $costo, $stock) {
-            $resultSet = Database::select("SELECT * FROM producto WHERE SKU = ?", [$sku]);
+        public static function createProducto($id_vendedor, $sku, $titulo, $stock, $scale, $precio) {
+            $resultSet = Database::select("SELECT * FROM producto WHERE SKU_PRODUCTO = ?", [ $sku ]);
             if(!empty($resultSet))
                 return false;
 
-            $id = Database::insert("INSERT INTO producto('TITULO','DESCRIPCION','COSTO','STOCK') VALUES(?,?,?,?,?)", [ $titulo, $descripcion, $costo, $stock ]);
+            $id = Database::insert("INSERT INTO producto(ID_VENDEDOR, SKU_PRODUCTO, TITULO, STOCK_PRODUCTO, SCALE, PRECIO) VALUES(?,?,?,?,?,?)", [ $id_vendedor, $sku, $titulo, $stock, $scale, $precio ]);
             if(empty($id))
                 return false;
 
             return new Producto($id);
+        }
+
+        /**
+         * Eliminar un producto.
+         * 
+         * @param int $sku
+         */
+        public static function deleteProducto($id) {
+            $eliminados = Database::delete("DELETE FROM producto WHERE ID_PRODUCTO = ?", [ $id ]);
+            if($eliminados > 0)
+                return true;
+            else
+                return false;
         }
 
         /**
@@ -86,16 +108,6 @@
          */
         public static function removeProducto($id) {
             Database::update("UPDATE producto SET ACTIVO = ? WHERE ID_PRODUCTO = ?", [false, $id]);
-        }
-
-        /**
-         * Obtener los assets para el cliente de unity.
-         * 
-         * @param int $id
-         * @return blob
-         */
-        public static function get3DAssets($id) {
-            throw new Exception(); //no implementado aun
         }
 
         //             $$$$$$\  $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  

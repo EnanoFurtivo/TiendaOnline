@@ -12,7 +12,7 @@
 .scrollable-table > tbody {
   flex: 1 1 auto;
   display: block;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
 }
 

@@ -1,0 +1,44 @@
+body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #212529;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-signin .checkbox {
+  font-weight: 400;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.straight-bottom {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.straight-top {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.login-title {
+  margin-bottom: 0 !important;
+  padding-bottom: 3px;
+}
+
+.background {
+	background-image: url('assets/background.jpg');
+	background-repeat: no-repeat;
+	background-size: cover;
+}

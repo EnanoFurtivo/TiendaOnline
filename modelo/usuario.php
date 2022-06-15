@@ -1,12 +1,10 @@
 <?php
 
-use JetBrains\PhpStorm\Internal\ReturnTypeContract;
-
     class Usuario extends Database
     {
         public $id = null;
         public $username = null;
-        private $ordenes = null;
+        protected $ordenes = array();
         public $mail = null;
         public $telefono = null;
         public $preview_path = null;
@@ -22,29 +20,29 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
             $this->mail = $datosUsuario[0]["MAIL"];
             $this->telefono = $datosUsuario[0]["TELEFONO"];
             $this->preview_path = "/datos/usuarios/".$this->id."/preview.png";
-            
-            $this->fetchOrdenes();
         }
-                                                                       
+        
+        /**
+         * Obtener usuario dado su nombre de usuario.
+         * 
+         * @param string $username
+         * @return Usuario
+         */
+        public static function fetchUsuario($username)
+        {
+            $datosUsuario = Database::select("SELECT ID_USUARIO FROM usuario WHERE USERNAME = ?", [$username]);
+            if (empty($datosUsuario))
+                return null;
+            $id = $datosUsuario[0]["ID_USUARIO"];
+            $user = new Usuario($id);
+            return $user;
+        }
+
         /**
          * Actualizar ordenes del usuario.
-         * 
-         * @param int $id
-         * @return array
+         * @return void
          */
-        public function fetchOrdenes() {
-            $resultSet = $this->select("SELECT * FROM orden WHERE ID_USUARIO = ?", [$this->id]);
-            if(empty($resultSet))
-                return null;
-            
-            $ordenes = [];
-            foreach ($resultSet as $key => $value) {
-                $idOrden = $resultSet[$key]["ID_ORDEN"];
-                $ordenes[$idOrden] = new Orden($idOrden);
-            }
-
-            $this->ordenes = $ordenes;
-        }
+        protected function fetchOrdenes() {;}
 
         //                     $$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\ $$$$$$\  $$$$$$\  
         //                    $$  __$$\\__$$  __|$$  __$$\\__$$  __|\_$$  _|$$  __$$\ 
@@ -202,7 +200,7 @@ use JetBrains\PhpStorm\Internal\ReturnTypeContract;
         /**
          * Obtener las ordenes del usuario.
          * 
-         * @return array|null
+         * @return array<Orden>|null
          */
         public function getOrdenes() {
             $this->fetchOrdenes();

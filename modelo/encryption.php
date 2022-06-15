@@ -12,8 +12,7 @@
 
         public static function encrypt($data)
         {
-            $publicKey = sodium_base642bin(Encryption::getPublicKey(), SODIUM_BASE64_VARIANT_ORIGINAL);
-            $encryptedData = sodium_crypto_box_seal($data, $publicKey);
+            $encryptedData = sodium_crypto_box_seal($data, Encryption::getPublicKey());
             return sodium_bin2base64($encryptedData, SODIUM_BASE64_VARIANT_ORIGINAL);
         }
 

@@ -14,7 +14,7 @@
     $missingUsername = (!isset($_POST["username"]) || $_POST["username"] == "");
     $missingPassword = (!isset($_POST["password"]) || $_POST["password"] == "");
     $credentialsMissing = ($missingUsername || $missingPassword);
-    $isRequestGenerarToken = ($endPoint == "usuario" && $uri[0] == "generar_token");
+    $isRequestGenerarToken = ($endPoint == "usuarios" && $uri[0] == "generar_token");
 
     if ($authtokenMissing && !$isRequestGenerarToken)
         ApiController::enviarRespuesta("Se esperaba un token de acceso.", 400);

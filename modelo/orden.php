@@ -3,7 +3,8 @@
     class Orden extends Database
     {
         public $id = null;
-        public $items = null;
+        public $items = array();
+        public $cant_items = null;
         public $estado = null;
         public $fecha = null;
 
@@ -16,31 +17,29 @@
                 return null;
 
             //Aca traemos mas datos del producto de la base de datos..//
-            $this->id = $datosOrden[0]["ID_PRODUCTO"];
+            $this->id = $datosOrden[0]["ID_ORDEN"];
             $this->fecha = $datosOrden[0]["FECHA"];
-            $this->estado = 0;
+            $this->estado = $datosOrden[0]["ESTADO"];
 
-            $usernameComprador = $this->select("SELECT USERNAME FROM usuario WHERE ID_USUARIO = ?", [$datosOrden[0]["ID_COMPRADOR"]]);
-            $this->comprador = new Comprador($usernameComprador);
-
-            $usernameVendedor = $this->select("SELECT USERNAME FROM usuario WHERE ID_USUARIO = ?", [$datosOrden[0]["ID_VENDEDOR"]]);
-            $this->vendedor = new Vendedor($usernameVendedor);
+            $this->comprador = new Comprador($datosOrden[0]["ID_COMPRADOR"]);
+            $this->vendedor = new Vendedor($datosOrden[0]["ID_VENDEDOR"]);
 
             $this->fetchItems();
+            $this->cant_items = $this->getCantidadProductos();
         }
 
         /**
          * Crear nueva orden.
          * 
-         * @param Comprador $comprador
-         * @param Vendedor $vendedor
-         * @param array $items [ id => cantidad, ... ]
+         * @param string $comprador_id
+         * @param string $vendedor_id
+         * @param object $items { "id":"cantidad", ... }
          */
-        public static function createOrden($comprador, $vendedor, $items) {
-            $id = Database::insert("INSERT INTO orden('ID_COMPRADOR','ID_VENDEDOR') VALUES(?,?)", [ $comprador->getId(), $vendedor->getId() ]);
+        public static function createOrden($comprador_id, $vendedor_id, $items) {
+            $id = Database::insert("INSERT INTO orden(ID_COMPRADOR, ID_VENDEDOR) VALUES(?,?)", [ $comprador_id, $vendedor_id ]);
 
             foreach ($items as $key => $value)
-                Database::insert("INSERT INTO orden_item('ID_ORDEN','ID_PRODUCTO','CANTIDAD') VALUES(?,?,?)", [ $id, $key, $items[$key] ]);
+                Database::insert("INSERT INTO orden_item(ID_ORDEN, ID_PRODUCTO, CANTIDAD) VALUES(?,?,?)", [ $id, $key, $items->$key ]);
 
             return new Orden($id);
         }
@@ -48,26 +47,26 @@
         public function fetchItems()
         {
             $resultSet = $this->select("SELECT * FROM orden_item WHERE ID_ORDEN = ?", [$this->id]);
-            $items = [];
+            $items = array();
 
             foreach ($resultSet as $key => $value) {
                 $id = $resultSet[$key]["ID_PRODUCTO"];
                 $items[$id] = $resultSet[$key]["CANTIDAD"];
             }
 
-            $this->$items = $items;
+            $this->items = $items;
         }
         
         public function cancelar()
         {
-            $this->update("UPDATE orden SET ESTADO = ? WHERE ID_PRODUCTO = ?", [1, $this->id]);
-            $this->estado = 1;
+            $this->estado = "cancelada";
+            $this->update("UPDATE orden SET ESTADO = ? WHERE ID_ORDEN = ?", [ $this->estado, $this->id ]);
         }
 
         public function finalizar()
         {
-            $this->update("UPDATE orden SET ACTIVO = ? WHERE ID_PRODUCTO = ?", [2, $this->id]);
-            $this->estado = 2;
+            $this->estado = "finalizada";
+            $this->update("UPDATE orden SET ESTADO = ? WHERE ID_ORDEN = ?", [ $this->estado, $this->id ]);
         }
 
         public function getCantidadProductos()

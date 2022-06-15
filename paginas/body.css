@@ -7,3 +7,9 @@ body {
 .main-window {
 	background-color: #f8f8f8;
 }
+
+.background {
+	background-image: url('../assets/background.jpg');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
